@@ -179,6 +179,7 @@ Return Value:
 ******************************************************************************/
 int main(int argc, char *argv[])
 {
+    
     //char *input  = "input_uvc.so --resolution 640x480 --fps 5 --device /dev/video0";
     char *input[MAX_INPUT_PLUGINS];
     char *output[MAX_OUTPUT_PLUGINS];

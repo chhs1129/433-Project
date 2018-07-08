@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>JS图片轮播特效-左右切换</title>
+<style type="text/css">
+.imageRotation{
+	height:300px;
+	width:570px;
+	overflow:hidden;  /*--超出容器的所有元素都不可见--*/
+	position:relative;  /*--相对定位--*/
+	border:10px solid #eee;
+	background-color:#eee;
+	bodrer-radius:5px;
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;
+	}
+
+.imageBox{
+	position:absolute;  /*--固定定位--*/
+	height:270px;
+	top:0px;
+	left:0px;
+	overflow:hidden;
+	}
+.imageBox img {
+	display:block;
+	height:270px;
+	width:570px;
+	float:left;
+	border:none;
+	}
+
+.icoBox{
+	position:absolute;  /*--固定定位--*/
+	bottom:4px;
+	left:247px;
+	width:76px;
+	height:12px;
+	text-align:center;
+	line-height:40px;
+	}
+.icoBox span{
+	display:block;
+	float:left;
+	height:12px;
+	width:12px;
+	margin-left:3px;
+	overflow:hidden;
+	background:url("http://www.itxueyuan.org/uploads/javascript/demo/lunbo/zuoyou/images/ico.png") 0px 0px no-repeat;
+	cursor:pointer;
+	}
+.icoBox span.active {
+	background-position:0px -12px;
+	cursor:default;
+	}
+</style>
+</head>
+<body>
+<div class="imageRotation">
+<div class="imageBox">
+<a href="http://www.itxueyuan.org" target="_blank"><img src="img_1.jpg" /></a>
+<a href="http://www.itxueyuan.org" target="_blank"><img src="img_6.jpg" /></a>
+<a href="http://www.itxueyuan.org" target="_blank"><img src="img_21.jpg" /></a>
+<a href="http://www.itxueyuan.org" target="_blank"><img src="img_119.jpg" /></a>
+
+</div>
+<div class="icoBox">
+<span class="active" rel="1">1</span>
+<span rel="2">2</span>
+<span rel="3">3</span>
+<span rel="4">4</span>
+<span rel="5">5</span>
+</div>
+</div>
+<script type="text/javascript" src="http://www.itxueyuan.org/uploads/javascript/jquery.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+	$(".imageRotation").each(function(){
+		// 获取有关参数
+		var imageRotation = this,  // 取得 图片轮换容器
+			imageBox = $(imageRotation).children(".imageBox")[0],  // 取得 图片容器
+			icoBox = $(imageRotation).children(".icoBox")[0],  // 取得 图标容器
+			icoArr = $(icoBox).children(),  // 取得所有图标，并保存为数组
+			imageWidth = $(imageRotation).width(),  // 图片宽度
+			imageNum = $(imageBox).children().size(),  // 图片数量
+			imageReelWidth = imageWidth*imageNum,  // 图片容器宽度
+			activeID = parseInt($($(icoBox).children(".active")[0]).attr("rel")),  // 当前图片ID
+			nextID = 0,  // 下张图片ID
+			setIntervalID,  // setInterval() 函数ID
+			intervalTime = 4000,  // 间隔时间
+			speed =500;  // 执行速度
+		
+		// 设置 图片容器 的宽度
+		$(imageBox).css({'width' : imageReelWidth + "px"});
+		
+		// 图片轮换函数
+		var rotate=function(clickID){
+			if(clickID){ nextID = clickID; }
+			else{ nextID=activeID<=3 ? activeID+1 : 1; }
+			
+			$(icoArr[activeID-1]).removeClass("active");
+			$(icoArr[nextID-1]).addClass("active");
+			$(imageBox).animate({left:"-"+(nextID-1)*imageWidth+"px"} , speed);
+			
+			activeID = nextID;
+		}
+		setIntervalID=setInterval(rotate,intervalTime);
+		
+		$(imageBox).hover(
+			function(){ clearInterval(setIntervalID); },
+			function(){ setIntervalID=setInterval(rotate,intervalTime); }
+		);	
+		
+		$(icoArr).click(function(){
+			clearInterval(setIntervalID);
+			var clickID = parseInt($(this).attr("rel"));
+			rotate(clickID);
+			setIntervalID=setInterval(rotate,intervalTime);
+		});
+	});
+});
+</script>
+</body>
+</html>
