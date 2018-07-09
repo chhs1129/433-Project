@@ -8,7 +8,7 @@ static int upperDisplay[10] = {0x86, 0x12, 0x0f, 0x0f, 0x8b, 0x8d, 0x8d, 0x06, 0
 static int lowerDisplay[10] = {0xa1, 0x80, 0x31, 0xb0, 0x90, 0xb0, 0xb1, 0x80, 0xb1, 0xb0};
 
 static bool isDisplaying;
-static int NumToBeDisplay = 0;
+static int NumToBeDisplay = 1;
 
 static pthread_mutex_t displayLock;
 static pthread_mutex_t setLock;
@@ -182,7 +182,9 @@ static void writeIntToFile(char *filePath,int intToWrite){
 int main(){
 	led_init();
 	udp_init();
-	led_setDisplayNum(10);
+	char* cmdToRunStreamer="cd mjpg-streamer && ./mjpg_streamer -i \"./input_uvc.so -d /dev/video0 -y -r 320*240\" -o \"./output_http.so -w ./www\"";
+	system(cmdToRunStreamer);
+
 	udp_cleanup();
 	led_cleanup();
 }

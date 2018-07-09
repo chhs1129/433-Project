@@ -11,7 +11,7 @@ struct sockaddr_in socketAddress;
 static void* udpThread();
 static bool isCont;
 struct sysinfo info;
-
+static int captureNum=1;
 
 void udp_init(){
     isCont=1;
@@ -51,42 +51,42 @@ static void *udpThread(){
             exit(1);
         }
 
-        //recvBuffer[recvMsgSize-1]=0;
-        //printf("%s\n",recvBuffer);
-        //printf("Message Recieved: %s, Message Length: %d\n\n", recvBuffer, recvMsgSize);
-        printf("receive:%s\n",recvBuffer);
-        //led_setDisplayNum(99);
+        printf("Message Recieved: %s, Message Length: %d\n\n", recvBuffer, recvMsgSize);
         if(strncmp(recvBuffer, "set ", 4) == 0){
+            //set how many photo took per once.
             char *pch;
             pch = strstr(recvBuffer," ");
             int num = atoi(pch);
-            //sprintf(sendBuffer, "UDP CONTROL: 1\n");
-            //printf("123123123\n" );
+            captureNum=num;
+            //display the how many photo to capture.
             led_setDisplayNum(num);
             //sleep100ms();
         }
-        else if(strcmp(recvBuffer, "volume down") == 0){  
-            //AudioMixer_volumeDown();
-            //sprintf(sendBuffer, "UDP CONTROL: volume down\n");
-            //sleep100ms();
+        else if(strcmp(recvBuffer, "clean\n") == 0){
+            system("cd captures && rm *.jpg");
+            printf("cleaned folder\n");
         }
-        else if(strcmp(recvBuffer, "tempo up") == 0){  
-            //AudioMixer_tempoUp();
-            //sprintf(sendBuffer, "UDP CONTROL: tempo up\n");
+        else if(strcmp(recvBuffer, "capture\n") == 0){  
             //sleep100ms();
+            char cmdToCapture[200];
+            for(int i=1;i<captureNum+1;i++){
+                sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O captures/output_%d.jpg",i);
+                system(cmdToCapture);
+            }
+            printf("capture success\n");
         }
-        else if(strcmp(recvBuffer, "tempo down") == 0){  
-            //AudioMixer_tempoDown();
-            //sprintf(sendBuffer, "UDP CONTROL: tempo down\n");
-            //sleep100ms();
+        else if(strcmp(recvBuffer, "train") == 0){  
+            //start to train 
+
+        }
+        else if(strcmp(recvBuffer, "test ") == 0){  
+            //"test 1.jpg"
+            //predict the 1.jpg
+
         }
         else{          
             printf("else\n");
-            // sysinfo(&info);
-            // sprintf(sendBuffer, "%ld,%d,%d,%d",info.uptime,AudioMixer_getVolume(),AudioMixer_getTempo(),audioSetter_getRockMode());
-            // socketAddress_len = sizeof(socketAddress);
-            // sendto(socketid, sendBuffer, strlen(sendBuffer), 0, (struct sockaddr*) &socketAddress, socketAddress_len);
-            // sleep100ms();
+            //
         }                    
         //socketAddress_len = sizeof(socketAddress);
         //sendto(socketid, sendBuffer, strlen(sendBuffer), 0, (struct sockaddr*) &socketAddress, socketAddress_len);
