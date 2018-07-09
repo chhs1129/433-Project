@@ -1,0 +1,16 @@
+TS:
+ -bash: ./mjpg_streamer: cannot execute binary file: Exec format error
+
+free a port :
+
+lsof -i:8080
+
+kill -9 pid
+
+
+
+run command:
+ ./mjpg_streamer -i "./input_uvc.so -d /dev/video0 -y -fps 30 -r 320*240" -o "./output_http.so -w ./www"
+
+capute cmd:
+wget http://192.168.7.2:8080/?action=snapshot -O output.jpg
