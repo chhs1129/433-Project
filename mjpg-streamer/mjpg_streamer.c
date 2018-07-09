@@ -139,7 +139,7 @@ void signal_handler(int sig)
     LOG("done\n");
 
     closelog();
-    exit(0);
+    exit(1);
     return;
 }
 

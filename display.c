@@ -1,5 +1,6 @@
 #include "display.h"
 #include "udp.h"
+#include "streamer.h"
 
 static int i2cFileDesc;
 
@@ -182,9 +183,8 @@ static void writeIntToFile(char *filePath,int intToWrite){
 int main(){
 	led_init();
 	udp_init();
-	char* cmdToRunStreamer="cd mjpg-streamer && ./mjpg_streamer -i \"./input_uvc.so -d /dev/video0 -y -r 320*240\" -o \"./output_http.so -w ./www\"";
-	system(cmdToRunStreamer);
-
+	streamer_init();
+	streamer_cleanup();
 	udp_cleanup();
 	led_cleanup();
 }

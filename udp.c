@@ -1,5 +1,6 @@
 #include "udp.h"
 #include "display.h"
+#include "streamer.h"
 
 #define PORT 12345
 #define PACKET_LEN 1500
@@ -67,7 +68,6 @@ static void *udpThread(){
             printf("cleaned folder\n");
         }
         else if(strcmp(recvBuffer, "capture\n") == 0){  
-            //sleep100ms();
             char cmdToCapture[200];
             for(int i=1;i<captureNum+1;i++){
                 sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O captures/output_%d.jpg",i);
