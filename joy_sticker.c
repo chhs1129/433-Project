@@ -3,8 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "joy_sticker.h"
-#include "audioMixer_template.h"
-#include "different_beats.h"
+
 
 #define UP_FILE "/sys/class/gpio/gpio26/value"
 #define DOWN_FILE "/sys/class/gpio/gpio46/value"
