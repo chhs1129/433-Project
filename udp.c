@@ -11,12 +11,10 @@ static pthread_t udpThreadID;
 static int socketid;
 struct sockaddr_in socketAddress;
 static void* udpThread();
-static bool isCont;
 struct sysinfo info;
-static int captureNum;
-
+static int captureNum=0;
+static int totalCaptures=0;
 void udp_init(){
-    isCont=1;
     memset(&socketAddress,0,sizeof(socketAddress));
     // Internet address family IPV4
     socketAddress.sin_family = AF_INET;
@@ -40,7 +38,7 @@ void udp_init(){
 static void *udpThread(){
     char recvBuffer[PACKET_LEN];
     char sendBuffer[PACKET_LEN];
-    
+
     while(1){
     //get # bytes of received message
         captureNum=POT_getNum();
@@ -66,14 +64,17 @@ static void *udpThread(){
             //sleep100ms();
         }
         else if(strcmp(recvBuffer, "clean\n") == 0){
-            system("cd captures && rm *.jpg");
+            system("cd controller-server/public/captures && rm *.jpg");
             printf("cleaned folder\n");
         }
         else if(strcmp(recvBuffer, "capture\n") == 0){  
             char cmdToCapture[200];
-            for(int i=1;i<captureNum+1;i++){
+            int i=totalCaptures+1;
+            int j=i+captureNum;
+            for(;i<j;i++){
                 sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O controller-server/public/captures/output_%d.jpg",i);
                 system(cmdToCapture);
+                totalCaptures++;
             }
             printf("capture success\n");
         }
@@ -88,7 +89,7 @@ static void *udpThread(){
         }
         else{          
             sysinfo(&info);
-            sprintf(sendBuffer, "%ld,%d",info.uptime,captureNum);
+            sprintf(sendBuffer, "%ld,%d,%d",info.uptime,captureNum,totalCaptures);
             socketAddress_len = sizeof(socketAddress);
             sendto(socketid, sendBuffer, strlen(sendBuffer), 0, (struct sockaddr*) &socketAddress, socketAddress_len);
         }                    

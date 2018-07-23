@@ -18,9 +18,6 @@
 #include <sys/sysinfo.h>
 
 
-
-
-
 void udp_init(void);
 void udp_cleanup(void);
 

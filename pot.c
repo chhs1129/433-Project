@@ -15,7 +15,7 @@ static void *POTthread();
 
 static pthread_t POTid;
 
-static int captureNum;
+static int captureNum=1;
 static int currentNum;
 int getA2Dreading(){
 	// Open file

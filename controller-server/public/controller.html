@@ -20,14 +20,16 @@
             <p id='captureNum_info'></p>
         </div>
 		<h2>Real time image:</h2>
-		<div id='image'>
-			<img id='img' width="520px" height='390px' src="http://192.168.7.2:8080/?action=stream">
-			<img src="/captures/output_1.jpg">
+		<img id='img' width="520px" height='390px' src="http://192.168.7.2:8080/?action=stream">
+		<div id="image_div">
+			<img id='image'>
+			<button onclick="next_but_func()" class="button">Show next image</button>
 		</div>
-		<br>
-		<button class="button">Capture</button>
-		<p></p>
-		<button onclick="capture_but()" class="button">Start weather learning process</button>
+		<br/>
+		<button onclick="capture_but_func()" class="button">Capture</button>
+		<br/>
+
+		<button onclick="learning_but_func()" class="button">Start weather learning process</button>
 
 	</body>
 	<script src='/socket.io/socket.io.js' type='text/javascript'></script>

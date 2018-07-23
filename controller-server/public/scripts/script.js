@@ -1,15 +1,22 @@
 "use strict";
 
 var socket=io.connect();
+var current_imgNum=1;
+var captureNum;
+var totalCaptures;
 //drum beat seletion
 $(document).ready(function() {
+	sendCommand('askInfo');
+	$("#image_div").hide();
+	sendCommand("clean\n");
 	window.setInterval(function(){
 		sendCommand('askInfo');
 	}, 1000);
 	var a =socket.on('commandReply',function(result){
 		var time=result.split(",")[0];
-		var captureNum=result.split(",")[1];
-		//var tempo = result.split(",")[2];
+		captureNum=result.split(",")[1];
+		totalCaptures=result.split(",")[2];
+		console.log(totalCaptures)
 		//var mode=result.split(",")[3];
 		//$('#volumeid').val(volume);
 		// $('#tempoid').val(tempo);
@@ -27,11 +34,7 @@ $(document).ready(function() {
 
 	})
 })
-function autoHider(){
-	return setTimeout(function () {
-	        	$('#error_table').hide();
-	}, 10000);
-}
+
 function set_time(s){
     var h = Math.floor(s/3600);
     var m = Math.floor((s%3600)/60);
@@ -48,20 +51,22 @@ function set_time(s){
     return h+":"+m+":"+ss;
 }
 
-function none_but_func(){
-	drum_beat.innerHTML = 'NONE'
-	sendCommand("rock 0")
+function capture_but_func(){
+	//$("#myimg").attr("src", "/myimg.jpg?"+d.getTime());
+	sendCommand("capture\n");
+	$("#image_div").show();
+	document.getElementById("image").src="/captures/output_"+current_imgNum+".jpg";
 }
-function rock1_but_func(){
-	drum_beat.innerHTML = 'Standard Rock'
-	sendCommand("rock 1")
-}
-function rock2_but_func(){
-	drum_beat.innerHTML = 'Rock #2'
-	sendCommand("rock 2")
-}
-function hihat_but_func(){
-	sendCommand("hihat")
+
+
+function next_but_func(){
+	current_imgNum++;
+	if(current_imgNum>totalCaptures){
+		current_imgNum=1;
+
+	}
+	document.getElementById("image").src="/captures/output_"+current_imgNum+".jpg";
+
 }
 function base_but_func(){
 	sendCommand("base")
