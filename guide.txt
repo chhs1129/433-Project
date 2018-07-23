@@ -3,6 +3,8 @@ TS:
 
 free a port :
 
+fuser -k 8080/tcp
+
 lsof -i:8080
 
 kill -9 pid
