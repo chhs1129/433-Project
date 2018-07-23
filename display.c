@@ -1,7 +1,8 @@
 #include "display.h"
 #include "udp.h"
 #include "streamer.h"
-
+#include "pot.h"
+#include "joystickController.h"
 static int i2cFileDesc;
 
 //0-9 
@@ -9,7 +10,7 @@ static int upperDisplay[10] = {0x86, 0x12, 0x0f, 0x0f, 0x8b, 0x8d, 0x8d, 0x06, 0
 static int lowerDisplay[10] = {0xa1, 0x80, 0x31, 0xb0, 0x90, 0xb0, 0xb1, 0x80, 0xb1, 0xb0};
 
 static bool isDisplaying;
-static int NumToBeDisplay = 1;
+static int NumToBeDisplay;
 
 static pthread_mutex_t displayLock;
 static pthread_mutex_t setLock;
@@ -84,18 +85,19 @@ void led_init(){
 	pthread_create(&id, NULL, &displayInt, NULL);
 }
 
-void led_setDisplayNum(int num) {
-	pthread_mutex_lock(&setLock);
-	{
-		NumToBeDisplay = num;
-	}
-	pthread_mutex_unlock(&setLock);
-}
+// void led_setDisplayNum(int num) {
+// 	pthread_mutex_lock(&setLock);
+// 	{
+// 		NumToBeDisplay = POT_getNum();
+// 	}
+// 	pthread_mutex_unlock(&setLock);
+// }
 
 static void *displayInt() {
 	int left_digit = 0; 
 	int right_digit = 0;
 	while(isDisplaying) {
+		NumToBeDisplay=POT_getReading();
 		pthread_mutex_lock(&displayLock);
 		{		
 			if(NumToBeDisplay > 99) {
@@ -184,6 +186,10 @@ int main(){
 	led_init();
 	udp_init();
 	streamer_init();
+	POT_init();
+	joystick_init();
+	joystick_cleanup();
+	POT_cleanup();
 	streamer_cleanup();
 	udp_cleanup();
 	led_cleanup();

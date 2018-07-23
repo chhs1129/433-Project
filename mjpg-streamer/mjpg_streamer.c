@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
     int daemon = 0, i;
     size_t tmp = 0;
 
-    output[0] = "output_http.so --port 8080";
+    output[0] = "output_http.so --port 1234";
     global.outcnt = 0;
 
 

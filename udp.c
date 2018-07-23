@@ -1,6 +1,7 @@
 #include "udp.h"
 #include "display.h"
 #include "streamer.h"
+#include "pot.h"
 
 #define PORT 12345
 #define PACKET_LEN 1500
@@ -12,7 +13,7 @@ struct sockaddr_in socketAddress;
 static void* udpThread();
 static bool isCont;
 struct sysinfo info;
-static int captureNum=1;
+static int captureNum;
 
 void udp_init(){
     isCont=1;
@@ -38,10 +39,11 @@ void udp_init(){
 
 static void *udpThread(){
     char recvBuffer[PACKET_LEN];
-    //char sendBuffer[PACKET_LEN];
+    char sendBuffer[PACKET_LEN];
+    
     while(1){
     //get # bytes of received message
-
+        captureNum=POT_getNum();
         unsigned int socketAddress_len = sizeof(socketAddress);
         //used to check if need to send array
        // bool array_flag=0;
@@ -60,7 +62,7 @@ static void *udpThread(){
             int num = atoi(pch);
             captureNum=num;
             //display the how many photo to capture.
-            led_setDisplayNum(num);
+            //led_setDisplayNum(num);
             //sleep100ms();
         }
         else if(strcmp(recvBuffer, "clean\n") == 0){
@@ -70,7 +72,7 @@ static void *udpThread(){
         else if(strcmp(recvBuffer, "capture\n") == 0){  
             char cmdToCapture[200];
             for(int i=1;i<captureNum+1;i++){
-                sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O captures/output_%d.jpg",i);
+                sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O controller-server/public/captures/output_%d.jpg",i);
                 system(cmdToCapture);
             }
             printf("capture success\n");
@@ -85,8 +87,10 @@ static void *udpThread(){
 
         }
         else{          
-            printf("else\n");
-            //
+            sysinfo(&info);
+            sprintf(sendBuffer, "%ld,%d",info.uptime,captureNum);
+            socketAddress_len = sizeof(socketAddress);
+            sendto(socketid, sendBuffer, strlen(sendBuffer), 0, (struct sockaddr*) &socketAddress, socketAddress_len);
         }                    
         //socketAddress_len = sizeof(socketAddress);
         //sendto(socketid, sendBuffer, strlen(sendBuffer), 0, (struct sockaddr*) &socketAddress, socketAddress_len);

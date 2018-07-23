@@ -17,11 +17,8 @@
 #include <unistd.h>
 #include <sys/sysinfo.h>
 
-#define VOLUME_UP "volume up"
-#define	VOLUME_DOWN "volume down"
-#define TEMPO_UP "tempo up"
-#define TEMPO_DOWN "tempo down"
-#define CHANGE_MODE "change mode"
+
+
 
 
 void udp_init(void);

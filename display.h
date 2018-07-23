@@ -47,7 +47,7 @@
 //init function
 void led_init(void);
 //set the number that needs to be displayed
-void led_setDisplayNum(int displayValue);
+//void led_setDisplayNum(int displayValue);
 //clean up function
 void led_cleanup(void);
 void led_off(void);

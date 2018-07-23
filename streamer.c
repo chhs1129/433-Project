@@ -11,6 +11,7 @@ int streamer_init(){
 
 void* streamerThread(){
 	char* cmdToRunStreamer="cd mjpg-streamer && ./mjpg_streamer -i \"./input_uvc.so -d /dev/video0 -y -r 320*240\" -o \"./output_http.so -w ./www\"";
+	system("fuser -k 8080/tcp");
 	system(cmdToRunStreamer);
 	return NULL;
 }
