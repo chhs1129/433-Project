@@ -13,10 +13,16 @@
 #define DIRECTION "out"
 #define DIRECTION_PATH "/sys/class/gpio/gpio60/direction"
 #define VALUE_PATH "/sys/class/gpio/gpio60/value"
+#define USR0 "/sys/class/leds/beaglebone:green:usr0/brightness"
+#define USR1 "/sys/class/leds/beaglebone:green:usr1/brightness"
+#define USR2 "/sys/class/leds/beaglebone:green:usr2/brightness"
+#define USR3 "/sys/class/leds/beaglebone:green:usr3/brightness"
+#define OPEN_ERROR "ERROR OPENING LED0 BRIGHTNESS FILE!"
 
 
-
-
+static _Bool run_control = 1;
+static struct timespec ts = {0, 100000000L };
+//nanosleep (&ts, NULL);
 void heartbeat_led_start(){
     FILE *fileLED = fopen(LED9_23, WRITE);
 	if (fileLED == NULL){
@@ -87,5 +93,101 @@ void green_led_off(){
 	fclose(fileLED);
 }
 
+void usr0(int brightness){
+	FILE *fileLED = fopen(USR0, WRITE);
+	if (fileLED == NULL){
+		printf(OPEN_ERROR);
+		return;	
+	}
+	
+	int charWritten = fprintf(fileLED, "%d", brightness);
+	if (charWritten <= 0){
+		printf(WRITE_ERROR);
+	}
+	fclose(fileLED);
+}
 
 
+void usr1(int brightness){
+	FILE *fileLED = fopen(USR1, WRITE);
+	if (fileLED == NULL){
+		printf(OPEN_ERROR);
+		return;	
+	}
+	
+	int charWritten = fprintf(fileLED, "%d", brightness);
+	if (charWritten <= 0){
+		printf(WRITE_ERROR);
+	}
+	fclose(fileLED);
+}
+
+
+void usr2(int brightness){
+	FILE *fileLED = fopen(USR2, WRITE);
+	if (fileLED == NULL){
+		printf(OPEN_ERROR);
+		return;	
+	}
+	
+	int charWritten = fprintf(fileLED, "%d", brightness);
+	if (charWritten <= 0){
+		printf(WRITE_ERROR);
+	}
+	fclose(fileLED);
+}
+
+
+void usr3(int brightness){
+	FILE *fileLED = fopen(USR3, WRITE);
+	if (fileLED == NULL){
+		printf(OPEN_ERROR);
+		return;	
+	}
+	
+	int charWritten = fprintf(fileLED, "%d", brightness);
+	if (charWritten <= 0){
+		printf(WRITE_ERROR);
+	}
+	fclose(fileLED);
+}
+
+void led_init(){
+	usr0(0);
+	usr1(0);
+	usr2(0);
+	usr3(0);
+}
+void led_processing(){
+	led_init();
+	while(run_control){
+		usr0(1);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr1(1);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr2(1);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr3(1);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr3(0);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr2(0);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr1(0);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		usr0(0);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+	}
+}
+
+void change_run_control(int new_control){
+	run_control = new_control;
+}

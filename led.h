@@ -6,5 +6,11 @@ void heartbeat_led_end();
 void change_direction();
 void green_led_on();
 void green_oed_off();
-
+void usr0(int);
+void usr1(int);
+void usr2(int);
+void usr3(int);
+void led_processing();
+void change_run_control(int);
+void led_init();
 #endif
