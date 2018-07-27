@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define LED9_23 "/sys/class/leds/leds:P9.23/trigger"
+#define LED9_23 "/sys/class/gpio/gpio49/value"
 #define WRITE "w"
 #define LED_OPEN_ERROR "ERROR OPENING LED0 BRIGHTNESS FILE!\n"
 #define SET_TRIGGER_START "heartbeat"
@@ -12,6 +12,7 @@
 #define WRITE_ERROR "ERROR WRITENG DATA!\n"
 #define DIRECTION "out"
 #define DIRECTION_PATH "/sys/class/gpio/gpio60/direction"
+#define DIRECTION_PATH1 "/sys/class/gpio/gpio49/direction"
 #define VALUE_PATH "/sys/class/gpio/gpio60/value"
 #define USR0 "/sys/class/leds/beaglebone:green:usr0/brightness"
 #define USR1 "/sys/class/leds/beaglebone:green:usr1/brightness"
@@ -21,37 +22,53 @@
 
 
 static _Bool run_control = 1;
+static _Bool led_control = 1;
 static struct timespec ts = {0, 100000000L };
 //nanosleep (&ts, NULL);
-void heartbeat_led_start(){
+void heartbeat_led(int new_value){
     FILE *fileLED = fopen(LED9_23, WRITE);
 	if (fileLED == NULL){
 		printf(LED_OPEN_ERROR);
 		return;	
 	}
 	
-	int charWritten = fprintf(fileLED, SET_TRIGGER_START);
+	int charWritten = fprintf(fileLED, "%d", new_value);
 	if (charWritten <= 0){
 		printf(WRITE_ERROR);
 	}
 	fclose(fileLED);
 }
 
-void heartbeat_led_end(){
-    FILE *fileLED = fopen(LED9_23, WRITE);
+
+
+void heartbeat_led_start(){
+	//change_direction_led();
+	while(led_control){
+		heartbeat_led(0);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+		heartbeat_led(1);
+		nanosleep (&ts, NULL);
+		nanosleep (&ts, NULL);
+	}
+    
+}
+
+void change_direction(){
+	FILE *fileLED = fopen(DIRECTION_PATH, WRITE);
 	if (fileLED == NULL){
 		printf(LED_OPEN_ERROR);
 		return;	
 	}
 	
-	int charWritten = fprintf(fileLED, SET_TRIGGER_STOP);
+	int charWritten = fprintf(fileLED, DIRECTION);
 	if (charWritten <= 0){
 		printf(WRITE_ERROR);
 	}
 	fclose(fileLED);
 }
-void change_direction(){
-	FILE *fileLED = fopen(DIRECTION_PATH, WRITE);
+void change_direction_led(){
+	FILE *fileLED = fopen(DIRECTION_PATH1, WRITE);
 	if (fileLED == NULL){
 		printf(LED_OPEN_ERROR);
 		return;	
@@ -191,3 +208,8 @@ void led_processing(){
 void change_run_control(int new_control){
 	run_control = new_control;
 }
+
+void change_led_control(int new_control){
+	led_control = new_control;
+}
+
