@@ -213,3 +213,8 @@ void change_led_control(int new_control){
 	led_control = new_control;
 }
 
+int main(){
+	change_direction_led();
+	heartbeat_led_start();
+	return 0;
+}
