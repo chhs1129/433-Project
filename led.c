@@ -3,6 +3,8 @@
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
+#include<pthread.h>
+
 
 #define LED9_23 "/sys/class/gpio/gpio49/value"
 #define WRITE "w"
@@ -19,12 +21,28 @@
 #define USR2 "/sys/class/leds/beaglebone:green:usr2/brightness"
 #define USR3 "/sys/class/leds/beaglebone:green:usr3/brightness"
 #define OPEN_ERROR "ERROR OPENING LED0 BRIGHTNESS FILE!"
+#define EXPORT "/sys/class/gpio/export"
+#define WRITE_PATH "w"
+#define EXPORT_ERROR "Error: UNable to open export file.\n"
 
 
 static _Bool run_control = 1;
 static _Bool led_control = 1;
 static struct timespec ts = {0, 100000000L };
 //nanosleep (&ts, NULL);
+static pthread_t led_thread;
+static pthread_t usr_thread;
+
+void export_gpio(int gpio_number){
+	FILE *pfile = fopen (EXPORT, WRITE_PATH);
+	if (pfile == NULL){
+		printf (EXPORT_ERROR);
+		exit(1);
+	}
+	fprintf(pfile, "%d", gpio_number);
+	fclose(pfile);
+}
+
 void heartbeat_led(int new_value){
     FILE *fileLED = fopen(LED9_23, WRITE);
 	if (fileLED == NULL){
@@ -55,6 +73,7 @@ void heartbeat_led_start(){
 }
 
 void change_direction(){
+	export_gpio(60);
 	FILE *fileLED = fopen(DIRECTION_PATH, WRITE);
 	if (fileLED == NULL){
 		printf(LED_OPEN_ERROR);
@@ -68,6 +87,7 @@ void change_direction(){
 	fclose(fileLED);
 }
 void change_direction_led(){
+	export_gpio(49);
 	FILE *fileLED = fopen(DIRECTION_PATH1, WRITE);
 	if (fileLED == NULL){
 		printf(LED_OPEN_ERROR);
@@ -213,8 +233,24 @@ void change_led_control(int new_control){
 	led_control = new_control;
 }
 
-int main(){
-	change_direction_led();
-	heartbeat_led_start();
-	return 0;
+void start_led(){
+    led_control = 1; 
+    //printf("start led!\n");   
+    pthread_create(&led_thread, NULL, (void*)&heartbeat_led_start, NULL);
 }
+
+void stop_led(){
+    pthread_join(led_thread, NULL);
+}
+
+void start_usr(){
+    run_control = 1; 
+    //printf("start usr!\n");   
+    pthread_create(&usr_thread, NULL, (void*)&led_processing, NULL);
+}
+
+void stop_usr(){
+    //run_control = false;
+    pthread_join(usr_thread, NULL);
+}
+
