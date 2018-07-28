@@ -6,10 +6,13 @@ static int readFile(char*);
 static pthread_t joystickThreadID;
 static void* joystickThread(void *arg);
 static void moveJoystick(void);
+static pthread_mutex_t lock;
 
 static void* joystickThread(void *arg){
     while(1){
+        pthread_mutex_lock(&lock);
         moveJoystick();
+        pthread_mutex_unlock(&lock);
     }
     return NULL;
 }
@@ -25,7 +28,8 @@ void joystick_init(){
     writeFile(JOYSTICK_LEFT_VALUE,1);
     writeFile(JOYSTICK_RIGHT_VALUE,1);
     writeFile(JOYSTICK_IN_VALUE,1);
-    pthread_create(&joystickThreadID,NULL,joystickThread,NULL);
+    pthread_mutex_init(&lock, NULL);
+    pthread_create(&joystickThreadID,NULL,&joystickThread,NULL);
 }
 void joystick_cleanup(){
     pthread_join(joystickThreadID,NULL);

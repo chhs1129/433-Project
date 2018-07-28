@@ -1,10 +1,6 @@
 //spawn a new thread
 //allow user use joystick
-// joystick up = increase volume by 5
-// joystick down = decrease volume by 5
-// joystick right = increase tempo by 5
-// joystick left = decrease tempo by 5
-// joystick in = change rock mode 
+//all movement can trigger "set the current capture value"
 
 #ifndef JOYSTICK_CONTROLER_H
 #define JOYSTICK_CONTROLER_H

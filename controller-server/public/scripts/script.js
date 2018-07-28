@@ -13,6 +13,7 @@ $(document).ready(function() {
 		sendCommand('askInfo');
 	}, 1000);
 	var a =socket.on('commandReply',function(result){
+		console.log(result);
 		var time=result.split(",")[0];
 		captureNum=result.split(",")[1];
 		totalCaptures=result.split(",")[2];
@@ -55,7 +56,10 @@ function capture_but_func(){
 	//$("#myimg").attr("src", "/myimg.jpg?"+d.getTime());
 	sendCommand("capture\n");
 	$("#image_div").show();
-	document.getElementById("image").src="/captures/output_"+current_imgNum+".jpg";
+	setTimeout(function() {
+		document.getElementById("image").src="/captures/output_"+current_imgNum+".jpg";
+
+	}, 1000);
 }
 
 
@@ -66,6 +70,7 @@ function next_but_func(){
 
 	}
 	document.getElementById("image").src="/captures/output_"+current_imgNum+".jpg";
+
 
 }
 function base_but_func(){

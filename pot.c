@@ -49,7 +49,7 @@ static void *POTthread(){
 	while(1){
         currentNum=1+PWLfunc();
     }
-    return 0;
+    return NULL;
 }
 
 int POT_getReading(){

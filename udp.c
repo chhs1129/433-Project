@@ -2,7 +2,7 @@
 #include "display.h"
 #include "streamer.h"
 #include "pot.h"
-
+#include "leds.h"
 #define PORT 12345
 #define PACKET_LEN 1500
 
@@ -71,18 +71,22 @@ static void *udpThread(){
             char cmdToCapture[200];
             int i=totalCaptures+1;
             int j=i+captureNum;
+            change_heartBeatLed_flag(1);
             for(;i<j;i++){
                 sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O controller-server/public/captures/output_%d.jpg",i);
                 system(cmdToCapture);
                 totalCaptures++;
             }
+            change_heartBeatLed_flag(0);
             printf("capture success\n");
         }
-        else if(strcmp(recvBuffer, "train") == 0){  
+        else if(strcmp(recvBuffer, "train\n") == 0){  
             //start to train 
-
+            change_userLed_flag(1);
+            //finish the train
+            //change_userLed_flag(0);
         }
-        else if(strcmp(recvBuffer, "test ") == 0){  
+        else if(strcmp(recvBuffer, "test\n") == 0){  
             //"test 1.jpg"
             //predict the 1.jpg
 

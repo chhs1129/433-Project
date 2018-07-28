@@ -28,15 +28,17 @@
 #define WRITE_PATH "w"
 #define EXPORT_ERROR "Error: UNable to open export file.\n"
 
+
+
 void green_led_on();
 void green_oed_off();
 
 
-void change_run_control(int);
-void change_led_control(int);
+void change_userLed_flag(int);
+void change_heartBeatLed_flag(int);
 
-void start_led(void);
-void stop_led();
-void start_usr();
-void stop_usr();
+void heartBeatLed_init();
+void heartBeatLed_cleanup();
+void userLeds_init();
+void userLeds_cleanup();
 #endif

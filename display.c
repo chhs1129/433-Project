@@ -3,6 +3,8 @@
 #include "streamer.h"
 #include "pot.h"
 #include "joystickController.h"
+#include "leds.h"
+
 static int i2cFileDesc;
 
 //0-9 
@@ -157,7 +159,7 @@ void led_cleanup(){
 
 static void sleep5ms(){
 	long seconds = 0;
-	long nanoseconds = 5000000;
+	long nanoseconds = 500000;
 	struct timespec delay = {seconds, nanoseconds};
 	nanosleep(&delay, (struct timespec *) NULL);
 }
@@ -185,12 +187,17 @@ static void writeIntToFile(char *filePath,int intToWrite){
 int main(){
 	led_init();
 	udp_init();
-	streamer_init();
+	 streamer_init();
 	POT_init();
 	joystick_init();
+	 heartBeatLed_init();
+	userLeds_init();
+	userLeds_cleanup();
+	 heartBeatLed_cleanup();
 	joystick_cleanup();
 	POT_cleanup();
 	streamer_cleanup();
 	udp_cleanup();
 	led_cleanup();
+	return 0;
 }
