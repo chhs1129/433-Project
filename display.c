@@ -4,7 +4,7 @@
 #include "pot.h"
 #include "joystickController.h"
 #include "leds.h"
-
+#include "button.h"
 static int i2cFileDesc;
 
 //0-9 
@@ -98,10 +98,10 @@ void led_init(){
 static void *displayInt() {
 	int left_digit = 0; 
 	int right_digit = 0;
-	while(isDisplaying) {
+	while(1) {
 		NumToBeDisplay=POT_getReading();
-		pthread_mutex_lock(&displayLock);
-		{		
+		// pthread_mutex_lock(&displayLock);
+		// {		
 			if(NumToBeDisplay > 99) {
 				NumToBeDisplay = 99;
 			}
@@ -143,14 +143,14 @@ static void *displayInt() {
 		
 			writeIntToFile(LED_RIGHT_VAL_PATH, 1);
 			sleep5ms();
-		}
-		pthread_mutex_unlock(&displayLock);	
+		// }
+		// pthread_mutex_unlock(&displayLock);	
 	}
 	return 0;
 }
 
 void led_cleanup(){
-	pthread_join(id, NULL);
+	pthread_detach(id);
 	isDisplaying = false;
 	pthread_mutex_destroy(&displayLock);
 	pthread_mutex_destroy(&setLock);
@@ -186,17 +186,19 @@ static void writeIntToFile(char *filePath,int intToWrite){
 
 int main(){
 	led_init();
-	udp_init();
+	 udp_init();
 	 streamer_init();
 	POT_init();
 	joystick_init();
 	 heartBeatLed_init();
 	userLeds_init();
+	    button_init();
+
 	userLeds_cleanup();
 	 heartBeatLed_cleanup();
 	joystick_cleanup();
 	POT_cleanup();
-	streamer_cleanup();
+	 streamer_cleanup();
 	udp_cleanup();
 	led_cleanup();
 	return 0;

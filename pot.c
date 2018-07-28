@@ -76,7 +76,7 @@ void POT_init(){
 }
 
 void POT_cleanup(){
-	pthread_join(POTid, NULL);
+	pthread_detach(POTid);
 }
 
 static int getInterval(int value){

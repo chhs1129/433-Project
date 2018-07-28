@@ -17,5 +17,5 @@ void* streamerThread(){
 }
 
 void streamer_cleanup(){
-	pthread_join(streamerThreadID,NULL);
+	pthread_detach(streamerThreadID);
 }

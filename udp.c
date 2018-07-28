@@ -3,6 +3,8 @@
 #include "streamer.h"
 #include "pot.h"
 #include "leds.h"
+#include "button.h"
+
 #define PORT 12345
 #define PACKET_LEN 1500
 
@@ -38,9 +40,10 @@ void udp_init(){
 static void *udpThread(){
     char recvBuffer[PACKET_LEN];
     char sendBuffer[PACKET_LEN];
-
+    change_button_direction();
     while(1){
     //get # bytes of received message
+
         captureNum=POT_getNum();
         unsigned int socketAddress_len = sizeof(socketAddress);
         //used to check if need to send array
@@ -51,19 +54,20 @@ static void *udpThread(){
             printf("network:Failed to receive message\n");
             exit(1);
         }
-
-        printf("Message Recieved: %s, Message Length: %d\n\n", recvBuffer, recvMsgSize);
-        if(strncmp(recvBuffer, "set ", 4) == 0){
-            //set how many photo took per once.
-            char *pch;
-            pch = strstr(recvBuffer," ");
-            int num = atoi(pch);
-            captureNum=num;
-            //display the how many photo to capture.
-            //led_setDisplayNum(num);
-            //sleep100ms();
+        if(button_thread()){
+            char cmdToCapture[200];
+            int i=totalCaptures+1;
+            int j=i+captureNum;
+            change_heartBeatLed_flag(1);
+            for(;i<j;i++){
+                sprintf(cmdToCapture,"wget http://192.168.7.2:8080/?action=snapshot -O controller-server/public/captures/output_%d.jpg",i);
+                system(cmdToCapture);
+                totalCaptures++;
+            }
+            change_heartBeatLed_flag(0);
+            printf("capture success\n");
         }
-        else if(strcmp(recvBuffer, "clean\n") == 0){
+        if(strcmp(recvBuffer, "clean\n") == 0){
             system("cd controller-server/public/captures && rm *.jpg");
             printf("cleaned folder\n");
         }
@@ -104,7 +108,7 @@ static void *udpThread(){
 }
 
 void udp_cleanup(){
-    pthread_join(udpThreadID,NULL);
+    pthread_detach(udpThreadID);
     close(socketid);
 }
 

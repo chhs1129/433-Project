@@ -2,6 +2,7 @@
 #define _BUTTON_H_
 
 void button_init();
-void button_cleanup();
+int button_thread();
 int get_button_status();
+void change_button_direction();
 #endif

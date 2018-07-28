@@ -21,13 +21,13 @@
 #define EXPORT_ERROR "Error: UNable to open export file.\n"
 
 static int button_status = 0;
-static pthread_t buttonID;
-static struct timespec ts = {0, 100000000L };
-static void* button_thread();
+
+//static struct timespec ts = {0, 100000000L };
+
 static void export_gpio(int gpio_number);
-static void change_button_direction();
+
 static void get_button_enable();
-static void* button_thread();
+
 
 
 static void export_gpio(int gpio_number){
@@ -39,7 +39,7 @@ static void export_gpio(int gpio_number){
 	fprintf(pfile, "%d", gpio_number);
 	fclose(pfile);
 }
-static void change_button_direction(){
+void change_button_direction(){
     export_gpio(31);
     FILE *fileLED = fopen(DIRECTION_PATH, WRITE);
 	if (fileLED == NULL){
@@ -57,7 +57,7 @@ static void change_button_direction(){
 
 
 static void get_button_enable(){
-    change_button_direction();
+    
     FILE *file = fopen(VALUE_PATH,READ);
 	if (file == NULL){
 		printf(READ_ERROR);
@@ -93,24 +93,20 @@ static void get_button_enable(){
 int get_button_status(){
     return button_status;
 }
-
-static void* button_thread(){
-    while(1){
-        get_button_enable();
-        for (int i = 0; i < 2; i++){
-            nanosleep (&ts, NULL);
-        }
-        //printf("%d\n", button_status);
-        button_status = 0;
-    }
-    return NULL;
+int button_thread(){
+    get_button_enable();
+        // for (int i = 0; i < 1; i++){
+        //     nanosleep (&ts, NULL);
+        // }
+        // printf("%d\n",get_button_status() );
+     if (get_button_status()){
+     	return 1;
+     }
+    return 0;
 }
 
 void button_init(){
-    pthread_create(&buttonID, NULL, &button_thread, NULL);
-}
-void button_cleanup(){
-    pthread_join(buttonID, NULL);
+	change_button_direction();
 }
 
 
