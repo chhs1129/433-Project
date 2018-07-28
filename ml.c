@@ -1,18 +1,56 @@
+/*
+	command:  gcc ml.c -o ml `pkg-config --cflags --libs opencv`
+			  ./ml imageName
+*/
+
+
 #include "opencv2/imgproc/imgproc_c.h"
 #include "opencv2/highgui/highgui_c.h"
 #include "opencv2/imgcodecs/imgcodecs_c.h"
 
 #include "stdio.h"
+#include "dirent.h"
+
+#define txtSize 8
 
 
-int main()
+int main(int argc, char *argv[])
 
 {
+	//get the folder dir to access images
+	//DIR *dir;
+	//char *namelist;
+	//struct dirent *entry;
+	//if ((dir=opendir("Cloudy")) == NULL){
+	//	printf("Error opening folder.\n");
+	//}
+	//else{
+	//	while((entry=readdir(dir)) !=NULL){
+
+			//printf((char)entry->d_name);
+	//	}
+	//}
+
+
+	//char imageName[txtSize];
+	//FILE *fp;
+	//fp = fopen("test/test.txt", "r");
+	//if (!fp){
+	//	printf("cannot open image name txt file.\n");
+	//	return 1;
+	//}
+	
+	//while(fgets(imageName, txtSize, fp) != NULL){
+	//	printf("%s", imageName);
+	//}
+	
+
+
 	//load colored image
-    IplImage *img  = cvLoadImage("test2.jpg",1);
+    IplImage *img  = cvLoadImage(argv[1],1);
 
     //load gray image
-    IplImage *g_img = cvLoadImage("test2.jpg",0);
+    IplImage *g_img = cvLoadImage(argv[1],0);
 
     if (!img){
         printf("problem loading the colored image.\n");
@@ -27,18 +65,17 @@ int main()
     size = img->width * img->height;
     printf("size=%f\n", size);
 
-    //average lightness of image
-    CvScalar avg_lightness = cvAvg(img,NULL);
-    printf("average lightness =%d\n", avg_lightness);
     
-
+   
     //BGR value of image
     //Gray value of image
     int totalB;
     int totalG;
     int totalR;
+    int totalY;
     int totalGray;
     totalGray = 0;
+    totalY = 0;
     totalB = 0;
     totalG = 0;
     totalR = 0;
@@ -55,9 +92,13 @@ int main()
 			int rVal = ((uchar *)(img->imageData + i*img->widthStep))[j*img->nChannels + 2]; // R
 			//printf("B=%d, G=%d, R=%d\n",bVal,gVal,rVal);
 
+			int luma = 0.299*rVal + 0.587*gVal + 0.144*bVal;
+			//printf("Y=%d\n", luma);
+
 			totalB += bVal;
 			totalG += gVal;
 			totalR += rVal;
+			totalY += luma;
         }
     }
 
@@ -74,16 +115,38 @@ int main()
     int avgR = totalR/size;
     int avgG = totalG/size;
     int avgGray = totalGray/size;
-    printf("avgB=%d, avgG=%d, avgR=%d, avgGray=%d\n", avgB, avgG, avgR, avgGray);
+    int avgLuma = totalY/size;
+    printf("avgB=%d, avgG=%d, avgR=%d, avgGray=%d, avgLuma=%d\n", avgB, avgG, avgR, avgGray, avgLuma);
 
-    if (avgB < 150){
-    	printf("Predict: Cloudy\n");
+    //average lightness of image
+    //CvScalar avg_lightness = cvAvg(img,NULL);
+    //printf("average lightness =%d\n", avg_lightness);
+
+
+    if (avgLuma > 140){
+    	printf("Predict: Rainy or Cloudy\n");
     }
     else{
-    	printf("Predict: Clear\n");
+    	if (avgGray > 110){
+    		printf("Predict: Rainy or Cloudy\n");
+    	}
+    	else{
+    		if (avgB < 125){
+    			printf("Predict: Rainy or Cloudy\n");
+    		}
+    		else{
+    			printf("Predict: Clear\n");
+    		}
+    	}
     }
 
-    printf("Processing end.\n");
-    return 0;
+    printf("Predict weather end.\n");
 
+    return 0;
 }
+
+
+
+
+
+
