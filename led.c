@@ -1,39 +1,26 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <unistd.h>
-#include<pthread.h>
 
 
-#define LED9_23 "/sys/class/gpio/gpio49/value"
-#define WRITE "w"
-#define LED_OPEN_ERROR "ERROR OPENING LED0 BRIGHTNESS FILE!\n"
-#define SET_TRIGGER_START "heartbeat"
-#define SET_TRIGGER_STOP "none"
-#define WRITE_ERROR "ERROR WRITENG DATA!\n"
-#define DIRECTION "out"
-#define DIRECTION_PATH "/sys/class/gpio/gpio60/direction"
-#define DIRECTION_PATH1 "/sys/class/gpio/gpio49/direction"
-#define VALUE_PATH "/sys/class/gpio/gpio60/value"
-#define USR0 "/sys/class/leds/beaglebone:green:usr0/brightness"
-#define USR1 "/sys/class/leds/beaglebone:green:usr1/brightness"
-#define USR2 "/sys/class/leds/beaglebone:green:usr2/brightness"
-#define USR3 "/sys/class/leds/beaglebone:green:usr3/brightness"
-#define OPEN_ERROR "ERROR OPENING LED0 BRIGHTNESS FILE!"
-#define EXPORT "/sys/class/gpio/export"
-#define WRITE_PATH "w"
-#define EXPORT_ERROR "Error: UNable to open export file.\n"
+#include "led.h"
 
+static void export_gpio(int);
+static void* heartbeat_led_start(void *arg);
+static void heartbeat_led();
+static void change_direction();
+static void usr0(int);
+static void usr1(int);
+static void usr2(int);
+static void usr3(int);
+static void* led_processing();
+static void led_init();
+static void change_direction_led();
 
 static _Bool run_control = 1;
 static _Bool led_control = 1;
 static struct timespec ts = {0, 100000000L };
-//nanosleep (&ts, NULL);
 static pthread_t led_thread;
 static pthread_t usr_thread;
 
-void export_gpio(int gpio_number){
+static void export_gpio(int gpio_number){
 	FILE *pfile = fopen (EXPORT, WRITE_PATH);
 	if (pfile == NULL){
 		printf (EXPORT_ERROR);
@@ -43,7 +30,7 @@ void export_gpio(int gpio_number){
 	fclose(pfile);
 }
 
-void heartbeat_led(int new_value){
+static void heartbeat_led(int new_value){
     FILE *fileLED = fopen(LED9_23, WRITE);
 	if (fileLED == NULL){
 		printf(LED_OPEN_ERROR);
@@ -59,7 +46,7 @@ void heartbeat_led(int new_value){
 
 
 
-void heartbeat_led_start(){
+static void* heartbeat_led_start(void *arg){
 	//change_direction_led();
 	while(led_control){
 		heartbeat_led(0);
@@ -69,10 +56,10 @@ void heartbeat_led_start(){
 		nanosleep (&ts, NULL);
 		nanosleep (&ts, NULL);
 	}
-    
+    return NULL;
 }
 
-void change_direction(){
+static void change_direction(){
 	export_gpio(60);
 	FILE *fileLED = fopen(DIRECTION_PATH, WRITE);
 	if (fileLED == NULL){
@@ -86,7 +73,7 @@ void change_direction(){
 	}
 	fclose(fileLED);
 }
-void change_direction_led(){
+static void change_direction_led(){
 	export_gpio(49);
 	FILE *fileLED = fopen(DIRECTION_PATH1, WRITE);
 	if (fileLED == NULL){
@@ -130,7 +117,7 @@ void green_led_off(){
 	fclose(fileLED);
 }
 
-void usr0(int brightness){
+static void usr0(int brightness){
 	FILE *fileLED = fopen(USR0, WRITE);
 	if (fileLED == NULL){
 		printf(OPEN_ERROR);
@@ -145,7 +132,7 @@ void usr0(int brightness){
 }
 
 
-void usr1(int brightness){
+static void usr1(int brightness){
 	FILE *fileLED = fopen(USR1, WRITE);
 	if (fileLED == NULL){
 		printf(OPEN_ERROR);
@@ -160,7 +147,7 @@ void usr1(int brightness){
 }
 
 
-void usr2(int brightness){
+static void usr2(int brightness){
 	FILE *fileLED = fopen(USR2, WRITE);
 	if (fileLED == NULL){
 		printf(OPEN_ERROR);
@@ -175,7 +162,7 @@ void usr2(int brightness){
 }
 
 
-void usr3(int brightness){
+static void usr3(int brightness){
 	FILE *fileLED = fopen(USR3, WRITE);
 	if (fileLED == NULL){
 		printf(OPEN_ERROR);
@@ -189,13 +176,13 @@ void usr3(int brightness){
 	fclose(fileLED);
 }
 
-void led_init(){
+static void led_init(){
 	usr0(0);
 	usr1(0);
 	usr2(0);
 	usr3(0);
 }
-void led_processing(){
+static void* led_processing(){
 	led_init();
 	while(run_control){
 		usr0(1);
@@ -223,6 +210,7 @@ void led_processing(){
 		nanosleep (&ts, NULL);
 		nanosleep (&ts, NULL);
 	}
+	return NULL;
 }
 
 void change_run_control(int new_control){
@@ -234,9 +222,10 @@ void change_led_control(int new_control){
 }
 
 void start_led(){
+	change_direction_led();
     led_control = 1; 
     //printf("start led!\n");   
-    pthread_create(&led_thread, NULL, (void*)&heartbeat_led_start, NULL);
+    pthread_create(&led_thread, NULL, &heartbeat_led_start, NULL);
 }
 
 void stop_led(){
@@ -246,11 +235,23 @@ void stop_led(){
 void start_usr(){
     run_control = 1; 
     //printf("start usr!\n");   
-    pthread_create(&usr_thread, NULL, (void*)&led_processing, NULL);
+    pthread_create(&usr_thread, NULL, &led_processing, NULL);
 }
 
 void stop_usr(){
     //run_control = false;
     pthread_join(usr_thread, NULL);
+}
+
+
+int main(){
+	//change_direction_led();
+	start_led();
+	
+	start_usr();
+	stop_led();
+	stop_usr();
+	//green_led_on();
+	return 0;
 }
 
